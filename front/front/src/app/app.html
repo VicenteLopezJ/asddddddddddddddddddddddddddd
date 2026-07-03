@@ -1,0 +1,167 @@
+<div class="app-layout">
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo-square"></div>
+      <h2>Vehículos</h2>
+    </div>
+    <nav class="top-nav">
+      <button class="nav-item active">🚗 Gestión de Vehículos</button>
+    </nav>
+    <div class="meta-info">
+      <span>Angular + Spring Boot</span>
+    </div>
+  </header>
+
+  @if (success()) {
+    <div class="toast toast-success">{{ success() }}</div>
+  }
+  @if (error()) {
+    <div class="toast toast-error">{{ error() }}</div>
+  }
+
+  <div class="split-view">
+    <div class="list-pane">
+      <div class="pane-header">
+        <input
+          type="text"
+          placeholder="Buscar vehículo..."
+          class="search-input"
+          (input)="handleSearch($event)"
+        />
+        <button class="btn btn-primary btn-sm" (click)="toggleAddMode()">
+          {{ isAddMode ? 'Cerrar' : '+ Registrar' }}
+        </button>
+      </div>
+
+      <div class="pane-body">
+        @if (loading()) {
+          <div class="loader">Cargando...</div>
+        } @else {
+          @for (v of filteredVehiculos(); track v.id ?? v.placa) {
+            <div
+              class="list-item"
+              [class.selected]="selectedVehiculoId === (v.id ?? 0) && !isAddMode"
+              (click)="selectVehiculo(v)"
+            >
+              <div class="item-header-row">
+                <span class="item-title">{{ v.marca }} {{ v.modelo }}</span>
+                <span class="item-monto">${{ v.precioPorDia | number:'1.2-2' }}</span>
+              </div>
+              <div class="item-subtitle">{{ v.placa }} · {{ v.color }}</div>
+              <div class="item-footer">Año: {{ v.anio }} · {{ v.estado ? 'Disponible' : 'No disponible' }}</div>
+            </div>
+          } @empty {
+            <div class="pane-empty">No hay vehículos registrados</div>
+          }
+        }
+      </div>
+    </div>
+
+    <div class="details-pane">
+      @if (isAddMode) {
+        <div class="form-container">
+          <h2>Registrar Nuevo Vehículo</h2>
+          <p class="form-help">Completa los campos para guardar un nuevo vehículo.</p>
+
+          <form (submit)="createVehiculo($event)">
+            <div class="form-group">
+              <label>Placa</label>
+              <input type="text" name="placa" required placeholder="Ej. ABC-123" [(ngModel)]="vehiculoForm.placa" />
+            </div>
+            <div class="form-group">
+              <label>Marca</label>
+              <input type="text" name="marca" required placeholder="Ej. Toyota" [(ngModel)]="vehiculoForm.marca" />
+            </div>
+            <div class="form-group">
+              <label>Modelo</label>
+              <input type="text" name="modelo" required placeholder="Ej. Corolla" [(ngModel)]="vehiculoForm.modelo" />
+            </div>
+            <div class="form-group">
+              <label>Año</label>
+              <input type="number" name="anio" min="1900" max="2100" placeholder="Ej. 2022" [(ngModel)]="vehiculoForm.anio" />
+            </div>
+            <div class="form-group">
+              <label>Color</label>
+              <input type="text" name="color" required placeholder="Ej. Blanco" [(ngModel)]="vehiculoForm.color" />
+            </div>
+            <div class="form-group">
+              <label>Precio por día</label>
+              <input type="number" name="precioPorDia" step="0.01" required placeholder="Ej. 45.00" [(ngModel)]="vehiculoForm.precioPorDia" />
+            </div>
+            <div class="form-group checkbox-group">
+              <label class="checkbox-inline">
+                <input type="checkbox" name="estado" [(ngModel)]="vehiculoForm.estado" />
+                <span>Disponible</span>
+              </label>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn btn-secondary" (click)="toggleAddMode()">Cancelar</button>
+              <button type="submit" class="btn btn-primary">Guardar Vehículo</button>
+            </div>
+          </form>
+        </div>
+      } @else {
+        @if (selectedVehiculo; as v) {
+          <div class="detail-container">
+            <div class="detail-header">
+              <div class="detail-avatar">{{ (v.marca?.charAt(0) || 'V') }}{{ (v.modelo?.charAt(0) || 'H') }}</div>
+              <div>
+                <h2>{{ v.marca }} {{ v.modelo }}</h2>
+                <p class="detail-tag" [class.available]="v.estado" [class.unavailable]="!v.estado">
+                  {{ v.estado ? 'Disponible' : 'No disponible' }}
+                </p>
+              </div>
+            </div>
+
+            <div class="detail-body">
+              <div class="info-row">
+                <span class="info-label">ID</span>
+                <span class="info-value">#{{ v.id }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Placa</span>
+                <span class="info-value">{{ v.placa }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Marca</span>
+                <span class="info-value">{{ v.marca }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Modelo</span>
+                <span class="info-value">{{ v.modelo }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Año</span>
+                <span class="info-value">{{ v.anio }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Color</span>
+                <span class="info-value">{{ v.color }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Precio por día</span>
+                <span class="info-value">${{ v.precioPorDia | number:'1.2-2' }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Estado</span>
+                <span class="info-value">{{ v.estado ? 'Disponible' : 'No disponible' }}</span>
+              </div>
+            </div>
+
+            <div class="detail-actions">
+              <button class="btn btn-danger" (click)="deleteVehiculo(v.id ?? 0)">
+                Eliminar Vehículo
+              </button>
+            </div>
+          </div>
+        } @else {
+          <div class="detail-placeholder">
+            <div class="placeholder-icon">🚗</div>
+            <h3>Selecciona un vehículo</h3>
+            <p>Elige un registro de la lista para ver su información completa.</p>
+          </div>
+        }
+      }
+    </div>
+  </div>
+</div>

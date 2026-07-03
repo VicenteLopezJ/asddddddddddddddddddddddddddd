@@ -36,7 +36,13 @@ public class VehiculoServiceImpl implements VehiculoService {
 
     @Override
     public Mono<Vehiculo> update(Vehiculo vehiculo) {
-        return vehiculoRepository.save(vehiculo);
+        return vehiculoRepository.findById(vehiculo.getId())
+                .flatMap(existing -> {
+                    if (vehiculo.getEstado() == null) {
+                        vehiculo.setEstado(existing.getEstado());
+                    }
+                    return vehiculoRepository.save(vehiculo);
+                });
     }
 
     @Override

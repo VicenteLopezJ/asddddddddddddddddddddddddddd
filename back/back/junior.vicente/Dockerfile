@@ -1,7 +1,7 @@
 # ============================================================
 # STAGE 1: Build - Compilar el JAR con Maven
 # ============================================================
-FROM eclipse-temurin:17-jdk-alpine AS builder
+FROM eclipse-temurin:26-jdk-alpine AS builder
 
 WORKDIR /app
 

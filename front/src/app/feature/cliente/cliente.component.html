@@ -1,0 +1,195 @@
+<section class="feature-section">
+
+  <div class="feature-header">
+    <div>
+      <h2 class="feature-title">👤 Gestión de Clientes</h2>
+      <p class="feature-subtitle">Microservicio CRUD · PostgreSQL · Puerto 8091</p>
+    </div>
+    @if (activeTab() === 'activos') {
+      <button class="btn btn-primary" id="btn-add-cliente" (click)="toggleAddMode()">
+        {{ isAddMode ? '✕ Cancelar' : '＋ Nuevo Cliente' }}
+      </button>
+    }
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon green">👤</div>
+      <div>
+        <div class="stat-label">Activos</div>
+        <div class="stat-value">{{ activos().length }}</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon amber">🚫</div>
+      <div>
+        <div class="stat-label">Inactivos</div>
+        <div class="stat-value">{{ eliminados().length }}</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon blue">📊</div>
+      <div>
+        <div class="stat-label">Total</div>
+        <div class="stat-value">{{ activos().length + eliminados().length }}</div>
+      </div>
+    </div>
+  </div>
+
+  @if (success()) { <div class="alert alert-success">{{ success() }}</div> }
+  @if (error()) { <div class="alert alert-error">{{ error() }}</div> }
+
+  <!-- Tabs -->
+  <div class="tabs-container">
+    <button class="tab-btn" [class.tab-active]="activeTab() === 'activos'" id="tab-clientes-activos" (click)="setTab('activos')">
+      ✅ Activos ({{ activos().length }})
+    </button>
+    <button class="tab-btn" [class.tab-active]="activeTab() === 'eliminados'" id="tab-clientes-eliminados" (click)="setTab('eliminados')">
+      🗑️ Inactivos ({{ eliminados().length }})
+    </button>
+  </div>
+
+  <!-- Formulario Agregar -->
+  @if (isAddMode && activeTab() === 'activos') {
+    <div class="card form-card">
+      <h3 class="card-title">➕ Registrar Cliente</h3>
+      <form (submit)="onSubmit($event)" class="form-grid" #formAdd="ngForm">
+        <div class="form-group">
+          <label>DNI</label>
+          <input id="cliente-dni" type="text" [(ngModel)]="clienteForm.dni" name="dni" 
+                 required pattern="^[0-9]{8}$" maxlength="8" placeholder="72654321" class="input"/>
+        </div>
+        <div class="form-group">
+          <label>Nombres</label>
+          <input id="cliente-nombres" type="text" [(ngModel)]="clienteForm.nombres" name="nombres" 
+                 required minlength="2" maxlength="60" placeholder="Miguel Luis" class="input"/>
+        </div>
+        <div class="form-group">
+          <label>Apellidos</label>
+          <input id="cliente-apellidos" type="text" [(ngModel)]="clienteForm.apellidos" name="apellidos" 
+                 required minlength="2" maxlength="60" placeholder="Lopez Sanchez" class="input"/>
+        </div>
+        <div class="form-group">
+          <label>Celular</label>
+          <input id="cliente-celular" type="text" [(ngModel)]="clienteForm.celular" name="celular" 
+                 required pattern="^[0-9]{9}$" maxlength="9" placeholder="987654321" class="input"/>
+        </div>
+        <div class="form-group">
+          <label>Correo</label>
+          <input id="cliente-correo" type="email" [(ngModel)]="clienteForm.correo" name="correo" 
+                 required placeholder="correo@gmail.com" class="input"/>
+        </div>
+        <div class="form-group">
+          <label>Licencia</label>
+          <input id="cliente-licencia" type="text" [(ngModel)]="clienteForm.licencia" name="licencia" 
+                 required pattern="^[A-Za-z0-9-]{8,12}$" maxlength="12" placeholder="Q12345678" class="input"/>
+        </div>
+        <div class="form-actions">
+          <button id="btn-save-cliente" type="submit" class="btn btn-primary" [disabled]="formAdd.invalid">💾 Guardar</button>
+          <button type="button" class="btn btn-secondary" (click)="cancelForm()">✕ Cancelar</button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- Formulario Editar -->
+  @if (isEditMode && editingCliente) {
+    <div class="card form-card form-card-edit">
+      <h3 class="card-title">✏️ Editando — {{ editingCliente.nombres }} {{ editingCliente.apellidos }}</h3>
+      <form (submit)="onUpdate($event)" class="form-grid" #formEdit="ngForm">
+        <div class="form-group">
+          <label>DNI</label>
+          <input id="cliente-edit-dni" type="text" [(ngModel)]="editingCliente.dni" name="dni" 
+                 required pattern="^[0-9]{8}$" maxlength="8" class="input"/>
+        </div>
+        <div class="form-group">
+          <label>Nombres</label>
+          <input id="cliente-edit-nombres" type="text" [(ngModel)]="editingCliente.nombres" name="nombres" 
+                 required minlength="2" maxlength="60" class="input"/>
+        </div>
+        <div class="form-group">
+          <label>Apellidos</label>
+          <input id="cliente-edit-apellidos" type="text" [(ngModel)]="editingCliente.apellidos" name="apellidos" 
+                 required minlength="2" maxlength="60" class="input"/>
+        </div>
+        <div class="form-group">
+          <label>Celular</label>
+          <input id="cliente-edit-celular" type="text" [(ngModel)]="editingCliente.celular" name="celular" 
+                 required pattern="^[0-9]{9}$" maxlength="9" class="input"/>
+        </div>
+        <div class="form-group">
+          <label>Correo</label>
+          <input id="cliente-edit-correo" type="email" [(ngModel)]="editingCliente.correo" name="correo" required class="input"/>
+        </div>
+        <div class="form-group">
+          <label>Licencia</label>
+          <input id="cliente-edit-licencia" type="text" [(ngModel)]="editingCliente.licencia" name="licencia" 
+                 required pattern="^[A-Za-z0-9-]{8,12}$" maxlength="12" class="input"/>
+        </div>
+        <div class="form-actions">
+          <button id="btn-update-cliente" type="submit" class="btn btn-warning" [disabled]="formEdit.invalid">💾 Actualizar</button>
+          <button type="button" class="btn btn-secondary" (click)="cancelForm()">✕ Cancelar</button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- Búsqueda -->
+  <div class="search-bar">
+    <input id="cliente-search" type="text" placeholder="Buscar por DNI, nombre, correo..." class="input" (input)="handleSearch($event)" />
+  </div>
+
+  @if (loading()) {
+    <div class="loading-spinner"><div class="spinner"></div><p>Cargando clientes...</p></div>
+  } @else {
+
+    @if (activeTab() === 'activos') {
+      <div class="cards-grid">
+        @for (c of filteredActivos(); track c.id) {
+          <div class="data-card">
+            <div class="data-card-header">
+              <span class="badge-placa">{{ c.dni }}</span>
+              <span class="badge badge-active">ACTIVO</span>
+            </div>
+            <h4 class="data-card-title">{{ c.nombres }} {{ c.apellidos }}</h4>
+            <div class="data-card-info">
+              <span>📱 {{ c.celular }}</span>
+              <span>✉️ {{ c.correo }}</span>
+              <span>🪪 {{ c.licencia }}</span>
+            </div>
+            <div class="data-card-actions">
+              <button class="btn-icon btn-edit" [id]="'btn-edit-cliente-' + c.id" (click)="openEdit(c)" title="Editar">✏️</button>
+              <button class="btn-icon btn-danger" [id]="'btn-delete-cliente-' + c.id" (click)="onDelete(c)" title="Desactivar">🗑️</button>
+            </div>
+          </div>
+        }
+        @empty { <div class="empty-state">No se encontraron clientes activos.</div> }
+      </div>
+    }
+
+    @if (activeTab() === 'eliminados') {
+      <div class="cards-grid">
+        @for (c of filteredEliminados(); track c.id) {
+          <div class="data-card data-card-deleted">
+            <div class="data-card-header">
+              <span class="badge-placa">{{ c.dni }}</span>
+              <span class="badge badge-inactive">INACTIVO</span>
+            </div>
+            <h4 class="data-card-title">{{ c.nombres }} {{ c.apellidos }}</h4>
+            <div class="data-card-info">
+              <span>📱 {{ c.celular }}</span>
+              <span>✉️ {{ c.correo }}</span>
+              <span>🪪 {{ c.licencia }}</span>
+            </div>
+            <div class="data-card-actions">
+              <button class="btn-icon btn-restore" [id]="'btn-restore-cliente-' + c.id" (click)="onRestore(c)" title="Restaurar">♻️ Restaurar</button>
+            </div>
+          </div>
+        }
+        @empty { <div class="empty-state">No hay clientes inactivos.</div> }
+      </div>
+    }
+
+  }
+</section>

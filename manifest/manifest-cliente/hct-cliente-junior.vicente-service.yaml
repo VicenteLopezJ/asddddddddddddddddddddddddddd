@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ms-cliente-service
+  namespace: hct-cliente-junior-vicente
+spec:
+  selector:
+    app: ms-cliente
+  ports:
+    - protocol: TCP
+      port: 8091
+      targetPort: 8091
+  type: ClusterIP

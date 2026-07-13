@@ -1,0 +1,6 @@
+hct\junior\vicente\repository\ClienteRepository.class
+hct\junior\vicente\rest\ClienteRest.class
+hct\junior\vicente\service\impl\ClienteServiceImpl.class
+hct\junior\vicente\service\ClienteService.class
+hct\junior\vicente\HackathonApplication.class
+hct\junior\vicente\model\Cliente.class

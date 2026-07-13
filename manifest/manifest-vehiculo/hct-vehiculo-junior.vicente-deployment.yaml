@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: junior-vicente-43-deployment
+  namespace: junior-vicente-43-namespace
+  labels:
+    app: vehiculo-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: vehiculo-app
+  template:
+    metadata:
+      labels:
+        app: vehiculo-app
+    spec:
+      containers:
+        - name: vehiculo-app
+          image: llampier2/hct-vehiculo:latest
+          ports:
+            - containerPort: 8090
+          env:
+            - name: PORT
+              value: "8090"
+            - name: DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: junior-vicente-43-secret
+                  key: DB_URL
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: junior-vicente-43-secret
+                  key: DB_USERNAME
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: junior-vicente-43-secret
+                  key: DB_PASSWORD

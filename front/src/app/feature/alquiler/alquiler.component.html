@@ -1,0 +1,269 @@
+<section class="feature-section">
+  <div class="feature-header">
+    <div>
+      <h2 class="feature-title">📋 Gestión de Alquileres</h2>
+      <p class="feature-subtitle">Microservicio TRANSACCIONAL · PostgreSQL · Puerto 8092</p>
+    </div>
+    @if (activeTab() === 'activos') {
+      <button class="btn btn-primary" id="btn-add-alquiler" (click)="toggleAddMode()">
+        {{ isAddMode ? '✕ Cancelar' : '＋ Nuevo Alquiler' }}
+      </button>
+    }
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon green">✅</div>
+      <div>
+        <div class="stat-label">Activos</div>
+        <div class="stat-value">{{ activos().length }}</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon amber">❌</div>
+      <div>
+        <div class="stat-label">Cancelados</div>
+        <div class="stat-value">{{ cancelados().length }}</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon blue">📊</div>
+      <div>
+        <div class="stat-label">Total</div>
+        <div class="stat-value">{{ activos().length + cancelados().length }}</div>
+      </div>
+    </div>
+  </div>
+
+  @if (success()) {
+    <div class="alert alert-success">{{ success() }}</div>
+  }
+  @if (error()) {
+    <div class="alert alert-error">{{ error() }}</div>
+  }
+
+  <!-- Tabs -->
+  <div class="tabs-container">
+    <button class="tab-btn" [class.tab-active]="activeTab() === 'activos'" id="tab-alquileres-activos" (click)="setTab('activos')">
+      ✅ Activos ({{ activos().length }})
+    </button>
+    <button class="tab-btn" [class.tab-active]="activeTab() === 'cancelados'" id="tab-alquileres-cancelados" (click)="setTab('cancelados')">
+      ❌ Cancelados ({{ cancelados().length }})
+    </button>
+  </div>
+
+  <!-- ===================== FORMULARIO AGREGAR ===================== -->
+  @if (isAddMode && activeTab() === 'activos') {
+    <div class="card form-card">
+      <h3 class="card-title">➕ Registrar Alquiler</h3>
+      <form (submit)="onSubmit($event)" class="form-grid" #formAdd="ngForm">
+
+        <!-- ID Cliente -->
+        <div class="form-group">
+          <label>ID Cliente</label>
+          <input id="alquiler-clienteId" type="number" [(ngModel)]="alquilerForm.clienteId"
+            name="clienteId" required min="1" placeholder="Ej: 1" class="input"
+            (ngModelChange)="onClienteIdChangeAdd()"/>
+          @if (previewClienteAdd()) {
+            <span class="field-preview" [class.field-preview-error]="previewClienteAdd()!.startsWith('⚠️')">
+              👤 {{ previewClienteAdd() }}
+            </span>
+          }
+        </div>
+
+        <!-- ID Vehículo -->
+        <div class="form-group">
+          <label>ID Vehículo</label>
+          <input id="alquiler-vehiculoId" type="number" [(ngModel)]="alquilerForm.vehiculoId"
+            name="vehiculoId" required min="1" placeholder="Ej: 1" class="input"
+            (ngModelChange)="onVehiculoIdChangeAdd()"/>
+          @if (previewVehiculoAdd()) {
+            <span class="field-preview" [class.field-preview-error]="previewVehiculoAdd()!.startsWith('⚠️')">
+              🚗 {{ previewVehiculoAdd() }}
+            </span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label>Días</label>
+          <input id="alquiler-dias" type="number" [(ngModel)]="alquilerForm.dias"
+            name="dias" required min="1" max="365" placeholder="3" class="input" (ngModelChange)="onDiasChange()"/>
+        </div>
+        <div class="form-group">
+          <label>Fecha Inicio</label>
+          <input id="alquiler-fechaInicio" type="date" [(ngModel)]="alquilerForm.fechaInicio"
+            name="fechaInicio" required class="input" (ngModelChange)="onDiasChange()"/>
+        </div>
+        <div class="form-group">
+          <label>Fecha Fin</label>
+          <input id="alquiler-fechaFin" type="date" [(ngModel)]="alquilerForm.fechaFin"
+            name="fechaFin" required class="input" readonly/>
+        </div>
+        <div class="form-group">
+          <label>Total (S/.)</label>
+          <input id="alquiler-total" type="number" [(ngModel)]="alquilerForm.total"
+            name="total" required min="1" step="0.01" placeholder="720" class="input"/>
+        </div>
+        <div class="form-actions">
+          <button id="btn-save-alquiler" type="submit" class="btn btn-primary" 
+            [disabled]="formAdd.invalid || previewClienteAdd()?.startsWith('⚠️') || previewVehiculoAdd()?.startsWith('⚠️')">
+            💾 Guardar
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="cancelForm()">✕ Cancelar</button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- ===================== FORMULARIO EDITAR ===================== -->
+  @if (isEditMode && editingAlquiler) {
+    <div class="card form-card form-card-edit">
+      <h3 class="card-title">✏️ Editar Alquiler #{{ editingAlquiler.id }}</h3>
+      <form (submit)="onUpdate($event)" class="form-grid" #formEdit="ngForm">
+
+        <!-- ID Cliente -->
+        <div class="form-group">
+          <label>ID Cliente</label>
+          <input id="alquiler-edit-clienteId" type="number" [(ngModel)]="editingAlquiler.clienteId"
+            name="clienteId" required min="1" class="input"
+            (ngModelChange)="onClienteIdChangeEdit()"/>
+          @if (previewClienteEdit()) {
+            <span class="field-preview" [class.field-preview-error]="previewClienteEdit()!.startsWith('⚠️')">
+              👤 {{ previewClienteEdit() }}
+            </span>
+          }
+        </div>
+
+        <!-- ID Vehículo -->
+        <div class="form-group">
+          <label>ID Vehículo</label>
+          <input id="alquiler-edit-vehiculoId" type="number" [(ngModel)]="editingAlquiler.vehiculoId"
+            name="vehiculoId" required min="1" class="input"
+            (ngModelChange)="onVehiculoIdChangeEdit()"/>
+          @if (previewVehiculoEdit()) {
+            <span class="field-preview" [class.field-preview-error]="previewVehiculoEdit()!.startsWith('⚠️')">
+              🚗 {{ previewVehiculoEdit() }}
+            </span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label>Días</label>
+          <input id="alquiler-edit-dias" type="number" [(ngModel)]="editingAlquiler.dias"
+            name="dias" required min="1" max="365" class="input" (ngModelChange)="onDiasChange()"/>
+        </div>
+        <div class="form-group">
+          <label>Fecha Inicio</label>
+          <input id="alquiler-edit-fechaInicio" type="date" [(ngModel)]="editingAlquiler.fechaInicio"
+            name="fechaInicio" required class="input" (ngModelChange)="onDiasChange()"/>
+        </div>
+        <div class="form-group">
+          <label>Fecha Fin</label>
+          <input id="alquiler-edit-fechaFin" type="date" [(ngModel)]="editingAlquiler.fechaFin"
+            name="fechaFin" required class="input"/>
+        </div>
+        <div class="form-group">
+          <label>Total (S/.)</label>
+          <input id="alquiler-edit-total" type="number" [(ngModel)]="editingAlquiler.total"
+            name="total" required min="1" step="0.01" class="input"/>
+        </div>
+        <div class="form-actions">
+          <button id="btn-update-alquiler" type="submit" class="btn btn-warning" 
+            [disabled]="formEdit.invalid || previewClienteEdit()?.startsWith('⚠️') || previewVehiculoEdit()?.startsWith('⚠️')">
+            💾 Actualizar
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="cancelForm()">✕ Cancelar</button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- Barra de búsqueda -->
+  <div class="search-bar">
+    <input id="alquiler-search" type="text" placeholder="🔍 Buscar por ID, nombre, vehículo..." class="input" (input)="handleSearch($event)" />
+  </div>
+
+  @if (loading()) {
+    <div class="loading-spinner"><div class="spinner"></div><p>Cargando alquileres...</p></div>
+  } @else {
+
+    <!-- TAB ACTIVOS -->
+    @if (activeTab() === 'activos') {
+      <div class="cards-grid">
+        @for (a of filteredActivos(); track a.id) {
+          <div class="data-card alquiler-card">
+            <div class="data-card-header">
+              <span class="badge-placa">ID: {{ a.id ?? 'N/A' }}</span>
+              <span class="badge badge-active">ACTIVO</span>
+            </div>
+            <!-- Nombres en lugar de #id -->
+            <div class="alquiler-partes">
+              <div class="alquiler-parte">
+                <span class="alquiler-parte-label">👤 Cliente #{{ a.clienteId }}</span>
+                <span class="alquiler-parte-nombre">{{ getClienteNombre(a.clienteId) }}</span>
+              </div>
+              <span class="alquiler-flecha">→</span>
+              <div class="alquiler-parte">
+                <span class="alquiler-parte-label">🚗 Vehículo #{{ a.vehiculoId }}</span>
+                <span class="alquiler-parte-nombre">{{ getVehiculoNombre(a.vehiculoId) }}</span>
+              </div>
+            </div>
+            <div class="data-card-info">
+              <span>📅 {{ a.fechaInicio }} → {{ a.fechaFin }}</span>
+              <span>🗓 {{ a.dias }} días</span>
+              <span>💰 S/. {{ a.total }}</span>
+            </div>
+            <div class="data-card-actions">
+              <button class="btn-icon btn-edit" [id]="'btn-edit-alquiler-' + a.id"
+                (click)="openEdit(a)" title="Editar">✏️</button>
+              <button class="btn-icon btn-danger" [id]="'btn-cancel-alquiler-' + a.id"
+                (click)="onCancel(a)" title="Cancelar">❌</button>
+            </div>
+          </div>
+        }
+        @empty {
+          <div class="empty-state">No se encontraron alquileres activos.</div>
+        }
+      </div>
+    }
+
+    <!-- TAB CANCELADOS -->
+    @if (activeTab() === 'cancelados') {
+      <div class="cards-grid">
+        @for (a of filteredCancelados(); track a.id) {
+          <div class="data-card data-card-deleted alquiler-card">
+            <div class="data-card-header">
+              <span class="badge-placa">ID: {{ a.id ?? 'N/A' }}</span>
+              <span class="badge badge-inactive">{{ a.estado }}</span>
+            </div>
+            <div class="alquiler-partes">
+              <div class="alquiler-parte">
+                <span class="alquiler-parte-label">👤 Cliente #{{ a.clienteId }}</span>
+                <span class="alquiler-parte-nombre">{{ getClienteNombre(a.clienteId) }}</span>
+              </div>
+              <span class="alquiler-flecha">→</span>
+              <div class="alquiler-parte">
+                <span class="alquiler-parte-label">🚗 Vehículo #{{ a.vehiculoId }}</span>
+                <span class="alquiler-parte-nombre">{{ getVehiculoNombre(a.vehiculoId) }}</span>
+              </div>
+            </div>
+            <div class="data-card-info">
+              <span>📅 {{ a.fechaInicio }} → {{ a.fechaFin }}</span>
+              <span>🗓 {{ a.dias }} días</span>
+              <span>💰 S/. {{ a.total }}</span>
+            </div>
+            <div class="data-card-actions">
+              <button class="btn-icon btn-restore" [id]="'btn-restore-alquiler-' + a.id"
+                (click)="onRestore(a)" title="Restaurar">♻️ Restaurar</button>
+            </div>
+          </div>
+        }
+        @empty {
+          <div class="empty-state">No hay alquileres cancelados.</div>
+        }
+      </div>
+    }
+
+  }
+</section>

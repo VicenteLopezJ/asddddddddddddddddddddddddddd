@@ -1,0 +1,10 @@
+hct\junior\vicente\dto\AlquilerDTO.class
+hct\junior\vicente\service\impl\AlquilerServiceImpl.class
+hct\junior\vicente\dto\AlquilerDTO$VehiculoDTO.class
+hct\junior\vicente\rest\AlquilerRest.class
+hct\junior\vicente\service\AlquilerService.class
+hct\junior\vicente\model\Alquiler.class
+hct\junior\vicente\HackathonApplication.class
+hct\junior\vicente\dto\AlquilerDTO$ClienteDTO.class
+hct\junior\vicente\repository\AlquilerRepository.class
+hct\junior\vicente\dto\AlquilerDTO$TransaccionDTO.class

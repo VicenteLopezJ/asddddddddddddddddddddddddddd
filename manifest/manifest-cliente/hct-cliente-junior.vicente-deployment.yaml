@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ms-cliente-deployment
+  namespace: hct-cliente-junior-vicente
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ms-cliente
+  template:
+    metadata:
+      labels:
+        app: ms-cliente
+    spec:
+      containers:
+        - name: ms-cliente
+          image: llampier2/hct-cliente:latest
+          ports:
+            - containerPort: 8091
+          env:
+            - name: PORT
+              value: "8091"
+            - name: DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: ms-cliente-secret
+                  key: DB_URL
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: ms-cliente-secret
+                  key: DB_USERNAME
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ms-cliente-secret
+                  key: DB_PASSWORD
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          readinessProbe:
+            httpGet:
+              path: /clientes
+              port: 8091
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 10

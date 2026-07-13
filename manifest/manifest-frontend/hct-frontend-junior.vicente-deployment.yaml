@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: junior-vicente-frontend-deployment
+  namespace: junior-vicente-43-namespace
+  labels:
+    app: frontend-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend-app
+  template:
+    metadata:
+      labels:
+        app: frontend-app
+    spec:
+      containers:
+        - name: frontend-app
+          image: llampier2/hct-frontend:latest
+          ports:
+            - containerPort: 80
+          env:
+            - name: FRONTEND_ENV
+              valueFrom:
+                secretKeyRef:
+                  name: junior-vicente-frontend-secret
+                  key: frontend_key

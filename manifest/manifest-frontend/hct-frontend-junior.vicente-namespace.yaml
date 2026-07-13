@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: junior-vicente-43-namespace
+  labels:
+    environment: clase
+    managed-by: kubectl
+    curso: kubernetes-basico

@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: hct-alquiler-junior-vicente
+  labels:
+    app: ms-alquiler
+    owner: junior.vicente

@@ -1,0 +1,13 @@
+<app-navbar [activeTab]="activeTab()" (tabChange)="setTab($event)"></app-navbar>
+
+<main class="main-content">
+  @if (activeTab() === 'vehiculo') {
+    <app-vehiculo></app-vehiculo>
+  }
+  @if (activeTab() === 'cliente') {
+    <app-cliente></app-cliente>
+  }
+  @if (activeTab() === 'alquiler') {
+    <app-alquiler></app-alquiler>
+  }
+</main>

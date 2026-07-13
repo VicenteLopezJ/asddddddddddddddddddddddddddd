@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: hct-cliente-junior-vicente
+  labels:
+    app: ms-cliente
+    owner: junior.vicente

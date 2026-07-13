@@ -1,0 +1,198 @@
+<section class="feature-section">
+
+  <!-- Header -->
+  <div class="feature-header">
+    <div>
+      <h2 class="feature-title">🚗 Gestión de Vehículos</h2>
+      <p class="feature-subtitle">Microservicio CRUD · PostgreSQL · Puerto 8090</p>
+    </div>
+    @if (activeTab() === 'activos') {
+      <button class="btn btn-primary" id="btn-add-vehiculo" (click)="toggleAddMode()">
+        {{ isAddMode ? '✕ Cancelar' : '＋ Nuevo Vehículo' }}
+      </button>
+    }
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon green">🚗</div>
+      <div>
+        <div class="stat-label">Disponibles</div>
+        <div class="stat-value">{{ activos().length }}</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon amber">🚫</div>
+      <div>
+        <div class="stat-label">No Disponibles</div>
+        <div class="stat-value">{{ eliminados().length }}</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon blue">📊</div>
+      <div>
+        <div class="stat-label">Total</div>
+        <div class="stat-value">{{ activos().length + eliminados().length }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alerts -->
+  @if (success()) { <div class="alert alert-success">{{ success() }}</div> }
+  @if (error()) { <div class="alert alert-error">{{ error() }}</div> }
+
+  <!-- Tabs -->
+  <div class="tabs-container">
+    <button class="tab-btn" [class.tab-active]="activeTab() === 'activos'" id="tab-vehiculos-activos" (click)="setTab('activos')">
+      ✅ Disponibles ({{ activos().length }})
+    </button>
+    <button class="tab-btn" [class.tab-active]="activeTab() === 'eliminados'" id="tab-vehiculos-eliminados" (click)="setTab('eliminados')">
+      🚫 No Disponibles ({{ eliminados().length }})
+    </button>
+  </div>
+
+  <!-- Formulario Agregar -->
+  @if (isAddMode && activeTab() === 'activos') {
+    <div class="card form-card">
+      <h3 class="card-title">➕ Registrar Vehículo</h3>
+      <form (submit)="onSubmit($event)" class="form-grid" #formAdd="ngForm">
+        <div class="form-group">
+          <label>Placa</label>
+          <input id="vehiculo-placa" type="text" [(ngModel)]="vehiculoForm.placa" name="placa" 
+                 required pattern="^[A-Za-z0-9-]{6,8}$" maxlength="8" placeholder="ABC-123" class="input"/>
+        </div>
+        <div class="form-group">
+          <label>Marca</label>
+          <input id="vehiculo-marca" type="text" [(ngModel)]="vehiculoForm.marca" name="marca" 
+                 required minlength="2" maxlength="50" placeholder="Toyota" class="input"/>
+        </div>
+        <div class="form-group">
+          <label>Modelo</label>
+          <input id="vehiculo-modelo" type="text" [(ngModel)]="vehiculoForm.modelo" name="modelo" 
+                 required minlength="2" maxlength="50" placeholder="Corolla" class="input"/>
+        </div>
+        <div class="form-group">
+          <label>Año</label>
+          <input id="vehiculo-anio" type="number" [(ngModel)]="vehiculoForm.anio" name="anio" 
+                 required min="1990" max="2027" placeholder="2026" class="input"/>
+        </div>
+        <div class="form-group">
+          <label>Color</label>
+          <input id="vehiculo-color" type="text" [(ngModel)]="vehiculoForm.color" name="color" 
+                 required minlength="3" maxlength="30" placeholder="Blanco" class="input"/>
+        </div>
+        <div class="form-group">
+          <label>Precio / Día (S/.)</label>
+          <input id="vehiculo-precio" type="number" [(ngModel)]="vehiculoForm.precioPorDia" name="precioPorDia" 
+                 required min="1" step="1" placeholder="150" class="input"/>
+        </div>
+        <div class="form-actions">
+          <button id="btn-save-vehiculo" type="submit" class="btn btn-primary" [disabled]="formAdd.invalid">💾 Guardar</button>
+          <button type="button" class="btn btn-secondary" (click)="cancelForm()">✕ Cancelar</button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- Formulario Editar -->
+  @if (isEditMode && editingVehiculo) {
+    <div class="card form-card form-card-edit">
+      <h3 class="card-title">✏️ Editando — {{ editingVehiculo.placa }}</h3>
+      <form (submit)="onUpdate($event)" class="form-grid" #formEdit="ngForm">
+        <div class="form-group">
+          <label>Placa</label>
+          <input id="vehiculo-edit-placa" type="text" [(ngModel)]="editingVehiculo.placa" name="placa" 
+                 required pattern="^[A-Za-z0-9-]{6,8}$" maxlength="8" class="input"/>
+        </div>
+        <div class="form-group">
+          <label>Marca</label>
+          <input id="vehiculo-edit-marca" type="text" [(ngModel)]="editingVehiculo.marca" name="marca" 
+                 required minlength="2" maxlength="50" class="input"/>
+        </div>
+        <div class="form-group">
+          <label>Modelo</label>
+          <input id="vehiculo-edit-modelo" type="text" [(ngModel)]="editingVehiculo.modelo" name="modelo" 
+                 required minlength="2" maxlength="50" class="input"/>
+        </div>
+        <div class="form-group">
+          <label>Año</label>
+          <input id="vehiculo-edit-anio" type="number" [(ngModel)]="editingVehiculo.anio" name="anio" 
+                 required min="1990" max="2027" class="input"/>
+        </div>
+        <div class="form-group">
+          <label>Color</label>
+          <input id="vehiculo-edit-color" type="text" [(ngModel)]="editingVehiculo.color" name="color" 
+                 required minlength="3" maxlength="30" class="input"/>
+        </div>
+        <div class="form-group">
+          <label>Precio / Día (S/.)</label>
+          <input id="vehiculo-edit-precio" type="number" [(ngModel)]="editingVehiculo.precioPorDia" name="precioPorDia" 
+                 required min="1" step="1" class="input"/>
+        </div>
+        <div class="form-actions">
+          <button id="btn-update-vehiculo" type="submit" class="btn btn-warning" [disabled]="formEdit.invalid">💾 Actualizar</button>
+          <button type="button" class="btn btn-secondary" (click)="cancelForm()">✕ Cancelar</button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- Búsqueda -->
+  <div class="search-bar">
+    <input id="vehiculo-search" type="text" placeholder="Buscar por placa, marca, modelo..." class="input" (input)="handleSearch($event)" />
+  </div>
+
+  @if (loading()) {
+    <div class="loading-spinner"><div class="spinner"></div><p>Cargando vehículos...</p></div>
+  } @else {
+
+    @if (activeTab() === 'activos') {
+      <div class="cards-grid">
+        @for (v of filteredActivos(); track v.id) {
+          <div class="data-card">
+            <div class="data-card-header">
+              <span class="badge-placa">{{ v.placa }}</span>
+              <span class="badge badge-active">DISPONIBLE</span>
+            </div>
+            <h4 class="data-card-title">{{ v.marca }} {{ v.modelo }}</h4>
+            <div class="data-card-info">
+              <span>📅 {{ v.anio }}</span>
+              <span>🎨 {{ v.color }}</span>
+              <span>💰 S/. {{ v.precioPorDia }}/día</span>
+            </div>
+            <div class="data-card-actions">
+              <button class="btn-icon btn-edit" [id]="'btn-edit-vehiculo-' + v.id" (click)="openEdit(v)" title="Editar">✏️</button>
+              <button class="btn-icon btn-danger" [id]="'btn-delete-vehiculo-' + v.id" (click)="onDelete(v)" title="Dar de baja">🚫</button>
+            </div>
+          </div>
+        }
+        @empty { <div class="empty-state">No se encontraron vehículos disponibles.</div> }
+      </div>
+    }
+
+    @if (activeTab() === 'eliminados') {
+      <div class="cards-grid">
+        @for (v of filteredEliminados(); track v.id) {
+          <div class="data-card data-card-deleted">
+            <div class="data-card-header">
+              <span class="badge-placa">{{ v.placa }}</span>
+              <span class="badge badge-inactive">NO DISPONIBLE</span>
+            </div>
+            <h4 class="data-card-title">{{ v.marca }} {{ v.modelo }}</h4>
+            <div class="data-card-info">
+              <span>📅 {{ v.anio }}</span>
+              <span>🎨 {{ v.color }}</span>
+              <span>💰 S/. {{ v.precioPorDia }}/día</span>
+            </div>
+            <div class="data-card-actions">
+              <button class="btn-icon btn-restore" [id]="'btn-restore-vehiculo-' + v.id" (click)="onRestore(v)" title="Restaurar">♻️ Disponible</button>
+            </div>
+          </div>
+        }
+        @empty { <div class="empty-state">No hay vehículos dados de baja.</div> }
+      </div>
+    }
+
+  }
+</section>

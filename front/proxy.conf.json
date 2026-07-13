@@ -1,0 +1,17 @@
+{
+  "/vehiculos": {
+    "target": "http://localhost:8090",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/clientes": {
+    "target": "http://localhost:8091",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/alquileres": {
+    "target": "http://localhost:8092",
+    "secure": false,
+    "changeOrigin": true
+  }
+}

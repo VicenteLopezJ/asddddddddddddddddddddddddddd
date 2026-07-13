@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: ms-cliente
+
+  r2dbc:
+    url: ${DB_URL:r2dbc:postgresql://neondb_owner:npg_Ph47WKytBxeL@ep-polished-salad-atllrhaj-pooler.c-9.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=REQUIRE}
+    username: ${DB_USERNAME:neondb_owner}
+    password: ${DB_PASSWORD:npg_6aXs0PhtFImb}
+    pool:
+      validation-query: "SELECT 1"
+      max-idle-time: 3m
+      max-life-time: 4m
+
+  sql:
+    init:
+      mode: always
+
+server:
+
+  port: ${PORT:8091}
+
+logging:
+  level:
+    vallegrande.edu.pe: INFO
+    org.springframework.r2dbc: DEBUG

@@ -1,0 +1,26 @@
+<nav class="navbar">
+  <div class="navbar-brand">
+    <div class="navbar-logo">🏎️</div>
+    <div>
+      <div class="navbar-title">RentaCar HCT</div>
+      <div class="navbar-subtitle">Sistema de Gestión</div>
+    </div>
+  </div>
+
+  <div class="navbar-tabs">
+    <button id="nav-vehiculo" class="nav-tab" [class.active]="activeTab === 'vehiculo'" (click)="setTab('vehiculo')">
+      <span class="nav-icon">🚗</span>
+      <span>Vehículos</span>
+    </button>
+    <button id="nav-cliente" class="nav-tab" [class.active]="activeTab === 'cliente'" (click)="setTab('cliente')">
+      <span class="nav-icon">👤</span>
+      <span>Clientes</span>
+    </button>
+    <button id="nav-alquiler" class="nav-tab" [class.active]="activeTab === 'alquiler'" (click)="setTab('alquiler')">
+      <span class="nav-icon">📋</span>
+      <span>Alquileres</span>
+    </button>
+  </div>
+
+  <div class="navbar-pill">junior.vicente</div>
+</nav>
